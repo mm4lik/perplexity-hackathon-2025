@@ -1,5 +1,4 @@
 # perplexity-hackathon-2025
-# Perplexity Hackathon 2025
 
 ## Project Name
 A brief description of your project.
