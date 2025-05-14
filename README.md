@@ -1,202 +1,177 @@
-# 🛡️ **Cyber Support AI Agent**
+# 🔍 **PolygraphGPT**: A Multimodal AI System for Attribution and Deception Detection in Cyber Influence and Hybrid Warfare
 
-**Diagnose. Reason. Resolve.**
-*Perplexity Hackathon 2025 Submission*
-*Powered by Perplexity Sonar API*
+*Perplexity Hackathon 2025 Submission*  
+*Powered by Perplexity Sonar API*  
 
 ---
 
 ## 💡 **Project Overview**
 
-**Cyber Support AI Agent** is an intelligent troubleshooting assistant designed to help users diagnose and fix hardware and software issues across devices — from laptops and printers to routers and operating systems.
+**PolygraphGPT** is an AI-driven system designed to combat the increasing threat of hybrid warfare, misinformation, and cyber-influence operations. With the rise of AI-driven misinformation campaigns, deepfakes, and malicious content, organizations and governments are struggling to detect and attribute deceptive narratives. **PolygraphGPT** addresses this issue by leveraging advanced **Natural Language Processing (NLP)**, **machine learning**, and **AI-driven research tools** to provide a cutting-edge solution for attribution and deception detection.
 
-Built for curious users and IT professionals alike, the bot uses **real-time internet search + AI reasoning** to:
-
-* Identify known problems (e.g., "HP laptop can't connect to WiFi").
-* Suggest verified fixes.
-* Guide users through multi-step solutions with chain-of-thought reasoning.
-* Pull live solutions and user-reported fixes from forums, support docs, and tech blogs.
-
-With this, users can resolve issues without endlessly scrolling forums, and IT help desks can boost efficiency.
+**PolygraphGPT** is capable of analyzing, identifying, and attributing deceptive content across multiple platforms, including social media, emails, and online forums. By combining **linguistic forensics**, **behavioral anomaly detection**, and **cognitive fingerprinting**, the system provides unparalleled insights into the motives behind cyber-influence campaigns, phishing operations, and deepfake attacks.
 
 ---
 
 ## 🌐 **Inspiration & Use Case**
 
-Today’s users face endless tech headaches:
+The growing sophistication of cyber-influence operations, particularly from state-sponsored actors, has made it increasingly difficult to differentiate between genuine communication and manipulated content. These operations often combine multiple deceptive tactics, such as:
 
-* Laptops suddenly disconnecting from Wi-Fi.
-* Printers refusing to connect.
-* Windows updates breaking drivers.
-* MacBooks not detecting USB hubs.
+- **Phishing attacks** (using social engineering and malicious links).
+- **Misinformation campaigns** (targeting specific ideologies or countries).
+- **Deepfake content** (audio, video, or images designed to deceive).
 
-**Cyber Support AI Agent** taps into real-time knowledge and historical fixes from across the web using **Perplexity's Sonar API** to give clear, actionable troubleshooting guidance in seconds — without needing expert-level knowledge.
+**PolygraphGPT** aims to fill this critical gap by using AI to identify **linguistic manipulation** and detect **AI-generated deception** in a scalable and cross-lingual manner. This system not only helps detect deceptive content but also assists in attributing the source of the operation, potentially revealing the threat actors behind these campaigns.
 
 ---
 
 ## 🔥 **Key Features**
 
-* **🔍 Real-Time Problem Detection**
-  Pulls the latest known issues based on user queries using Perplexity Sonar API with real-time search and citations.
+- **🧠 Multimodal Deception Detection**  
+  PolygraphGPT integrates multiple AI models to detect deception across different media (text, audio, video). It uses **NLP models** to identify manipulative language patterns and **deepfake detection** models to analyze media for authenticity.
 
-* **🧠 Chain-of-Thought Troubleshooting**
-  Guides users through step-by-step fixes using Sonar Reasoning & Deep Research APIs.
+- **🔎 Attribution Through Linguistic Forensics**  
+  The system employs **linguistic fingerprinting** to analyze text and identify recurring styles of known threat actors (e.g., Russian GRU or Iranian APT groups). It also maps the **geopolitical context** of the language to trace back the possible source.
 
-* **🛠️ Fix Suggestions with Sources**
-  Provides multiple fix options: vendor support pages, user forum solutions (e.g., Reddit, HP forums), and YouTube tutorial links.
+- **💡 Cognitive Fingerprinting**  
+  By analyzing the cognitive styles and psychological manipulation tactics embedded in phishing emails and misinformation campaigns, PolygraphGPT can identify subtle cues that hint at manipulation, such as persuasive language techniques or narrative arcs typical of certain groups.
 
-* **📚 Context-Aware Follow-Ups**
-  Remembers user queries and suggests next troubleshooting steps (e.g., "Did the first fix work? If not, try resetting the network adapter.").
+- **🧪 Cross-Lingual and Multiplatform Support**  
+  With **multilingual support** (Arabic, Russian, Mandarin), PolygraphGPT can detect manipulation in a variety of languages, making it suitable for global-scale influence operations. It integrates **Perplexity Sonar** for internet-scale research, collecting data across various platforms like social media, news articles, and hacker forums.
 
-* **🎯 Covers All Major Brands**
-  Examples: HP, Dell, Lenovo, Apple, Microsoft, Epson, Canon, Netgear, TP-Link.
-
----
-
-## 🚀 **Tech Stack**
-
-| Stack Component | Tech Used                                                 |
-| --------------- | --------------------------------------------------------- |
-| Frontend        | React.js + Tailwind CSS                                   |
-| Backend         | Python (Flask)                                            |
-| AI Integration  | Perplexity Sonar API (Search + Reasoning + Deep Research) |
-| Database        | MongoDB (stores query sessions & user context)            |
+- **🔄 Real-Time Attribution**  
+  The system can query **live sources** and track **ongoing campaigns** to provide real-time attribution, using a **knowledge graph** to track adversarial tactics and techniques (TTPs) across different influence campaigns.
 
 ---
 
-## 🌍 **Impact on Cybersecurity & IT Support**
+## 🔧 **Tech Stack**
 
-### For Everyday Users:
+The core of PolygraphGPT is built using **Python** for its flexibility in handling AI models and large datasets, alongside **SQL** for data storage and management. Here’s the breakdown of the tech stack:
 
-* Empowers non-technical people to fix their devices confidently.
-* Reduces dependency on expensive tech support services.
-
-### For IT Teams:
-
-* Acts as a Tier 1 support agent to offload common troubleshooting tasks.
-* Reduces ticket volume by helping users self-resolve issues.
-
-### Potential Impact Beyond:
-
-* Can evolve into a **Cyber Threat Diagnosis Tool** by adding modules to check for common malware symptoms, phishing incidents, or Windows/Mac vulnerabilities.
-
----
-
-## 🔎 **Example Use Case**
-
-**User Query**:
-*"Why is my HP laptop not connecting to WiFi after Windows update?"*
-
-**Cyber Support AI Agent Response (powered by Sonar Reasoning):**
-
-* 📝 Possible Cause 1: Driver conflict after update. \[Source: HP Support Article, April 2025]
-* 🛠️ Fix 1: Rollback WiFi driver to previous version. \[Guide Link]
-* 🔄 Fix 2: Reset network settings via Command Prompt (`netsh winsock reset`). \[Reddit User Fix]
-* 📺 Optional: Watch this tutorial: \[YouTube Link]
-* 💬 Follow-up: *"Did the fixes resolve your issue? Want me to guide you through the steps?"*
+| Component                 | Technology Used                                       |
+|---------------------------|-------------------------------------------------------|
+| **Backend**               | Python (Flask or Django for API services)             |
+| **AI Integration**        | Pre-trained NLP models (transformers, GPT-4)         |
+| **Deep Learning**         | PyTorch or TensorFlow (for deepfake detection models) |
+| **Deception Detection**   | NLTK, spaCy, TextBlob (for linguistic analysis)       |
+| **Research & Querying**   | Perplexity Sonar API (real-time threat research)      |
+| **Database**              | SQL (MySQL/PostgreSQL for storing threat data)        |
+| **Data Processing**       | Pandas, NumPy, and Scikit-learn (for data analysis)   |
+| **Multilingual Support**  | Google Translate API, multilingual NLP models        |
 
 ---
 
-## 🎯 **Hackathon Category**
+## 🚀 **How It Works**
 
-Submitting under:
+PolygraphGPT follows a multi-step process to detect deception, analyze narratives, and attribute influence campaigns. Here’s a step-by-step breakdown of how the system works:
 
-* **🏆 Best Deep Research Project**
-  (Leverages Sonar Deep Research + Chain-of-Thought reasoning for step-by-step problem solving.)
+### 1️⃣ **Input Data Collection**
 
-Also eligible for:
+Users submit suspicious content (e.g., emails, social media posts, or videos). The system can also continuously monitor platforms for potential influence campaigns.
 
-* **Most Fun / Creative Project** (Creative solution to everyday user frustration.)
-* **Best Fintech Project** (Future roadmap: extend to fintech device errors e.g., POS devices.)
+### 2️⃣ **Linguistic Forensics & Analysis**
+
+- **Text Processing**: PolygraphGPT uses NLP techniques (e.g., tokenization, part-of-speech tagging, and sentiment analysis) to examine the language used in the content.
+- **Deceptive Patterns**: The system identifies manipulative language patterns, cognitive bias triggers, and hallucinatory narratives typical of phishing or misinformation campaigns.
+
+### 3️⃣ **Deepfake Detection (For Multimedia)**
+
+- For multimedia inputs (audio/video), PolygraphGPT uses deep learning models trained to recognize deepfake manipulations, leveraging **computer vision** and **audio analysis** to authenticate the content.
+
+### 4️⃣ **Cognitive Fingerprinting**
+
+The system analyzes the psychological cues in the content, detecting persuasion tactics, emotional manipulation, and ideological triggers commonly used by threat actors in cyber warfare.
+
+### 5️⃣ **Attribution & Threat Actor Identification**
+
+PolygraphGPT compares the identified patterns with known **APT groups** (e.g., Russian GRU, Iranian hackers), and uses **geopolitical timing**, **platform usage**, and **linguistic markers** to provide real-time attribution.
+
+### 6️⃣ **Real-Time Research and Deep Mapping**
+
+The system pulls in additional information from **Perplexity Sonar API**, scanning the web, news outlets, and security databases to cross-reference the detected patterns with ongoing campaigns and known TTPs. This helps create a **real-time attribution map**.
 
 ---
 
-## ⚙️ **How It Works**
+## 🧰 **Modules and SQL Database**
 
-### 1️⃣ **User Submits Tech Issue**
+### **SQL Database Structure**:
+PolygraphGPT stores data such as text samples, attribution results, and threat actor profiles in a **SQL database**. The database includes tables for:
 
-e.g., *"Dell XPS audio not working after sleep mode."*
+- **Threat Actors**: Stores profiles of known groups and their tactics.
+- **Influence Campaigns**: Logs detected campaigns, including metadata like date, platform, and affected region.
+- **Linguistic Features**: Stores analyzed linguistic patterns and cognitive fingerprints.
 
-### 2️⃣ **Sonar API Fetches Real-Time Solutions**
+### **Key Tables**:
+- **Campaigns**: `campaign_id, title, description, detected_on, attributed_to`
+- **Threat_Actors**: `actor_id, name, tactics, ideologies, known_targets`
+- **Linguistic_Patterns**: `pattern_id, description, type, date_detected, source`
+- **Deceptive_Content**: `content_id, text, media_type, detected_manipulation_type`
 
-Searches live sources: tech forums, vendor docs, Reddit, StackExchange.
+### **SQL Queries**:
+PolygraphGPT uses **SQL queries** to analyze trends, detect recurring threat actor behavior, and fetch relevant data from the database. Example queries include:
 
-### 3️⃣ **Reasoning Engine Ranks Fixes**
-
-Sorts and reasons through the fixes:
-
-* Common cause? (e.g., driver sleep setting)
-* Vendor-recognized solution?
-* Community-approved fix?
-
-### 4️⃣ **Agent Provides Step-by-Step Fixes**
-
-User gets 2-3 best fixes, each with citation + guide link.
-
-### 5️⃣ **Follow-Up Dialog**
-
-Bot asks if issue is resolved, offers deeper troubleshooting if needed.
+- Retrieving known tactics from threat actors based on the detected manipulation in a piece of content.
+- Querying the **Deceptive_Content** table to fetch all detected manipulated content of a specific type (e.g., deepfakes or phishing emails).
 
 ---
 
 ## 🛠️ **Built With**
 
-* **Sonar API Features**:
+- **Sonar API Features**:
+  - 🔎 Real-Time Search
+  - 🔗 Trusted Citations
+  - 🧠 Chain-of-Thought Reasoning
+  - 📚 Deep Research Mode
 
-  * 🔎 Real-Time Search
-  * 🔗 Trusted Citations
-  * 🧠 Chain-of-Thought Reasoning
-  * 📚 Deep Research Mode
-
-* **Tools**:
-
-  * React.js
-  * Flask + Python
-  * MongoDB
-  * Tailwind CSS
+- **Tools**:
+  - React.js
+  - Flask + Python
+  - MongoDB
+  - Tailwind CSS
 
 ---
 
 ## 🎥 **Demo Video**
 
-Watch how Cyber Support AI Agent diagnoses and fixes issues:
+Watch how PolygraphGPT diagnoses and fixes issues:
 ➡️ [Demo Video Link](https://youtu.be/your-demo-link)
 
 ---
 
 ## 🧑‍💻 **Code Repository**
 
+Link to the code repository will be added here.
 
 ---
 
 ## ✅ **Submission Checklist**
 
-* [x] **Demo video** (max 3 mins)
-* [x] **Code repo shared** with judges
-* [x] **Detailed README** (this file)
-* [x] **Perplexity API explanation** included
-* [x] **Devpost form completed**
+- [x] **Demo video** (max 3 mins)
+- [x] **Code repo shared** with judges
+- [x] **Detailed README** (this file)
+- [x] **Perplexity API explanation** included
+- [x] **Devpost form completed**
 
 ---
 
 ## 🗺️ **Future Roadmap**
 
-* **Cyber Threat Diagnostics**: Add ability to detect malware-related symptoms.
-* **Fintech Device Support**: Expand bot to help fix point-of-sale and fintech devices.
-* **Multilingual Support**: Help users troubleshoot in multiple languages.
-* **IT Ticket System Integration**: Sync bot with Zendesk, Freshdesk, etc.
+- **Cyber Threat Diagnostics**: Add ability to detect malware-related symptoms.
+- **Fintech Device Support**: Expand bot to help fix point-of-sale and fintech devices.
+- **Multilingual Support**: Help users troubleshoot in multiple languages.
+- **IT Ticket System Integration**: Sync bot with Zendesk, Freshdesk, etc.
 
 ---
 
 ## 👏 **Acknowledgments**
 
-Thanks to **Perplexity AI** for Sonar API, which enabled real-time troubleshooting and research capabilities.
-Inspired by daily struggles of users and IT teams trying to fix tech with limited guidance.
+Thanks to **Perplexity AI** for Sonar API, which enabled real-time troubleshooting and research capabilities.  
+Inspired by the daily struggles of users and IT teams trying to fix tech with limited guidance.
 
 ---
 
 ## 🛡️ **Let’s make tech troubleshooting smarter, faster, and user-friendly.**
 
-**Cyber Support AI Agent** — Your AI-powered IT helpdesk.
+**PolygraphGPT** — Your AI-powered IT helpdesk.
 
 ---
