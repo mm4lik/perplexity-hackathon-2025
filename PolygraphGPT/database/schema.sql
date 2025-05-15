@@ -1,0 +1,6 @@
+CREATE TABLE deception_results (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    input_text TEXT NOT NULL,
+    result TEXT NOT NULL,
+    detected_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);

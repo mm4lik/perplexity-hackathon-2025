@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Linguistic Forensics - Analyze Text</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f9fafb;
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      color: #333;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      font-weight: 700;
+      color: #2c3e50;
+      font-size: 2.4rem;
+      text-align: center;
+    }
+
+    form#linguisticForm {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+    }
+
+    textarea#textInput {
+      min-height: 150px;
+      font-size: 1.1rem;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1.5px solid #ccc;
+      font-family: monospace;
+      resize: vertical;
+      transition: border-color 0.2s ease;
+    }
+    textarea#textInput:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
+    }
+
+    button[type="submit"] {
+      background-color: #3498db;
+      color: white;
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button[type="submit"]:hover {
+      background-color: #2980b9;
+    }
+
+    #result {
+      max-width: 600px;
+      margin-top: 30px;
+      background: #f0f4f8;
+      padding: 20px;
+      border-radius: 10px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      color: #34495e;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.1);
+      min-height: 100px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Linguistic Forensics</h1>
+
+  <form id="linguisticForm">
+    <textarea name="text" id="textInput" placeholder="Enter text here"></textarea>
+    <button type="submit">Analyze</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    document.getElementById('linguisticForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = document.getElementById('textInput').value.trim();
+
+      if (!text) {
+        document.getElementById('result').innerText = 'Please enter some text to analyze.';
+        return;
+      }
+
+      const response = await fetch('/linguistic-forensics', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ text })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        document.getElementById('result').innerText = 'Error: ' + error.error;
+        return;
+      }
+
+      const data = await response.json();
+      document.getElementById('result').innerText = JSON.stringify(data, null, 2);
+    });
+  </script>
+
+</body>
+</html>

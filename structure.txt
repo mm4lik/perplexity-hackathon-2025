@@ -1,0 +1,9 @@
+PolygraphGPT/
+│
+├── app.py                  # Main Flask backend
+├── requirements.txt        # Your project dependencies
+├── models/                 # NLP or deepfake models (optional for now)
+├── utils/                  # Helper functions (e.g., linguistic analysis, API querying)
+├── templates/              # Optional (for frontend if needed)
+├── static/                 # For static files like images, CSS if frontend is added
+└── venv/                   # Your virtual environment (already created)

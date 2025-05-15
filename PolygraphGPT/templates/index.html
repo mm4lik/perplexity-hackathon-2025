@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>PolygraphGPT - Deception Detection</title>
+</head>
+<body>
+    <h1>Deception Detection</h1>
+    <form id="deceptionForm" method="post" action="/deception-detection">
+        <textarea name="text" rows="6" cols="60" placeholder="Enter text to analyze..."></textarea><br/>
+        <button type="submit">Analyze</button>
+    </form>
+    <div id="result" style="margin-top: 20px; font-weight: bold;"></div>
+
+    <script>
+        const form = document.getElementById('deceptionForm');
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(form);
+            const response = await fetch('/deception-detection', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            document.getElementById('result').textContent = data.result;
+        });
+    </script>
+</body>
+</html>

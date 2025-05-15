@@ -61,6 +61,20 @@ The core of PolygraphGPT is built using **Python** for its flexibility in handli
 
 ---
 
+## 🔍 Perplexity Sonar Integration
+
+SentientSOC integrates with the **Perplexity Sonar API** to provide the **Threat Hunter** agent with real-time threat intelligence data. This allows the system to detect active cyber threats by accessing up-to-date information on malware, attacker infrastructure, phishing campaigns, and Indicators of Compromise (IoCs).
+
+Using Perplexity Sonar enhances SentientSOC’s ability to:
+
+- Continuously monitor emerging threats beyond static or simulated data.
+- Correlate live threat intelligence with historical incident memory stored in the SQL database.
+- Enable collaborative, context-aware decision-making across autonomous agents.
+
+This real-time intelligence feed is a key component in demonstrating SentientSOC’s capacity to operate as a next-generation autonomous Security Operations Center.
+
+---
+
 ## 🚀 **How It Works**
 
 PolygraphGPT follows a multi-step process to detect deception, analyze narratives, and attribute influence campaigns. Here’s a step-by-step breakdown of how the system works:
