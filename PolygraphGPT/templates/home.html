@@ -1,13 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head><title>PolygraphGPT Home</title></head>
-<body>
-    <h1>Welcome to PolygraphGPT</h1>
-    <ul>
-        <li><a href="/deception-detection">Deception Detection</a></li>
-        <li><a href="/attribution">Attribution</a></li>
-        <li><a href="/linguistic-forensics">Linguistic Forensics</a></li>
-        <li><a href="/deepfake-detection">Deepfake Detection</a></li>
-    </ul>
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-4">Welcome to PolygraphGPT</h1>
+<ul class="list-group">
+  <li class="list-group-item"><a href="/deception-detection">Deception Detection</a></li>
+  <li class="list-group-item"><a href="/attribution">Attribution</a></li>
+  <li class="list-group-item"><a href="/linguistic-forensics">Linguistic Forensics</a></li>
+  <li class="list-group-item"><a href="/deepfake-detection">Deepfake Detection</a></li>
+</ul>
+{% endblock %}

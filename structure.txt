@@ -1,9 +1,22 @@
 PolygraphGPT/
 │
-├── app.py                  # Main Flask backend
-├── requirements.txt        # Your project dependencies
-├── models/                 # NLP or deepfake models (optional for now)
-├── utils/                  # Helper functions (e.g., linguistic analysis, API querying)
-├── templates/              # Optional (for frontend if needed)
-├── static/                 # For static files like images, CSS if frontend is added
-└── venv/                   # Your virtual environment (already created)
+├── app.py
+├── modules/
+│   ├── __init__.py
+│   ├── deception.py
+│   ├── attribution.py
+│   ├── linguistic.py
+│   └── deepfake.py
+│
+├── templates/
+│   ├── base.html
+│   ├── home.html
+│   ├── deception.html
+│   ├── attribution.html
+│   ├── linguistic.html
+│   └── deepfake.html
+│
+├── static/
+│   └── style.css
+│
+└── requirements.txt
