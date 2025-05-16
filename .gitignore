@@ -4,3 +4,6 @@ venv/
 # Ignore venv in PolygraphGPT subfolder
 PolygraphGPT/venv/
 
+# ignore api key
+.env
+

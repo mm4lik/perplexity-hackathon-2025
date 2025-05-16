@@ -1,3 +1,12 @@
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # Load variables from .env file into environment
+
+API_KEY = os.getenv('PERPLEXITY_API_KEY')
+
+
+
 from flask import Flask, request, jsonify, render_template
 
 from modules import deception, attribution, linguistic, deepfake
@@ -150,7 +159,57 @@ def upload_file():
     return jsonify({'message': 'File uploaded', 'filename': filename}), 201
 
 
+
+
+#--------------------------------------------------
+# testing perlexity 
+
+import requests
+
+import requests
+from flask import jsonify
+
+@app.route('/test-perplexity')
+def test_perplexity():
+    API_KEY = os.getenv('PERPLEXITY_API_KEY')
+
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    data = {
+        "model": "sonar-pro",  # 🔁 use this valid model
+        "messages": [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "What is cyber attribution?"}
+        ]
+    }
+
+    url = "https://api.perplexity.ai/chat/completions"
+
+    try:
+        response = requests.post(url, headers=headers, json=data)
+
+        print("API response status:", response.status_code)
+        print("API response text:", response.text)
+
+        if response.status_code == 200:
+            return jsonify({"success": True, "response": response.json()}), 200
+        else:
+            return jsonify({"success": False, "error": response.text}), response.status_code
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+#---------------------------------------------------------------------------------------
+
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # Create DB tables if they don't exist
+        db.create_all()
+    
+    print("Loaded API Key:", API_KEY)  # <-- move here
+    
     app.run(debug=True)
+
