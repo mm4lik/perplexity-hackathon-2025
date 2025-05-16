@@ -10,12 +10,25 @@ from flask_sqlalchemy import SQLAlchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///polygraphgpt.db'  # SQLite file in your project folder
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+import os
+app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'uploads')
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # max 16MB upload
+
+# Create uploads folder if it doesn't exist
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+
 db = SQLAlchemy(app)
 
 class ThreatActor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
     description = db.Column(db.Text, nullable=True)
+
+class UploadedFile(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(255), nullable=False)
+
 
     def to_dict(self):
         return {
@@ -113,6 +126,29 @@ def deepfake_detection():
         result = deepfake.detect_deepfake(file)
         return jsonify({'result': result})
     return render_template('deepfake.html')
+
+
+from werkzeug.utils import secure_filename
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file uploaded'}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    filename = secure_filename(file.filename)
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(filepath)
+
+    # Save file metadata to DB
+    uploaded_file = UploadedFile(filename=filename)
+    db.session.add(uploaded_file)
+    db.session.commit()
+
+    return jsonify({'message': 'File uploaded', 'filename': filename}), 201
+
 
 if __name__ == '__main__':
     with app.app_context():
