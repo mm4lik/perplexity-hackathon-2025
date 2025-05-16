@@ -1,0 +1,6 @@
+# Ignore venv in the root folder
+venv/
+
+# Ignore venv in PolygraphGPT subfolder
+PolygraphGPT/venv/
+
