@@ -243,7 +243,7 @@ def chatbot():
             return jsonify({
                 "success": True,
                 "answer": answer,
-                "follow_up": "Did that fix it?"
+                "follow_up": "Did that help?"
             })
         else:
             return jsonify({

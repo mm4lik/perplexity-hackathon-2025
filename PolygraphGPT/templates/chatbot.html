@@ -1,41 +1,136 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>PolygraphGPT Chatbot</title>
+  <meta charset="UTF-8">
+  <title>PolygraphGPT Cyber Troubleshooter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+      padding: 20px;
+    }
+    #chatbox {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .message {
+      margin-bottom: 15px;
+    }
+    .user {
+      text-align: right;
+      color: blue;
+    }
+    .bot {
+      text-align: left;
+      color: green;
+    }
+    input[type="text"] {
+      width: 70%;
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .thinking {
+      color: gray;
+      font-style: italic;
+    }
+  </style>
 </head>
 <body>
-  <h1>🧠 PolygraphGPT Chatbot</h1>
-  <p>Type an issue (e.g., "My laptop won't charge"):</p>
+
+<div id="chatbox">
+  <h1>🧠 PolygraphGPT – Cyber Troubleshooter</h1>
+  <p>Type an issue (e.g., "My laptop won't update", "I got a strange pop-up"):</p>
 
   <input type="text" id="issueInput" placeholder="Describe your problem..." />
   <button onclick="submitIssue()">Get Help</button>
 
   <div id="response"></div>
+</div>
 
-  <script>
-    function submitIssue() {
-      const input = document.getElementById("issueInput");
-      const issue = input.value;
-      input.value = "";
+<script>
+function submitIssue() {
+  const input = document.getElementById("issueInput");
+  const issue = input.value.trim();
+  if (!issue) return;
 
-      fetch("/chatbot", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ issue })
-      })
-      .then(res => res.json())
-      .then(data => {
-        const box = document.getElementById("response");
-        if (data.success) {
-          box.innerHTML += `<p><strong>🤖:</strong> ${data.answer}</p>`;
-          if (data.follow_up) {
-            box.innerHTML += `<p><strong>🤖:</strong> ${data.follow_up}</p>`;
-          }
-        } else {
-          box.innerHTML += `<p><strong>🤖:</strong> ❌ Error: ${data.error}</p>`;
-        }
-      });
+  addMessage("You", issue);
+
+  const thinkingId = showThinking();
+
+  fetch("/chatbot", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ issue })
+  })
+  .then(res => res.json())
+  .then(data => {
+    hideThinking(thinkingId);
+
+    const box = document.getElementById("response");
+
+    if (data.success) {
+      // Format line breaks
+      let formattedAnswer = data.answer.replace(/\n/g, "<br>");
+
+      box.innerHTML += `<p><strong>🤖 PolygraphGPT:</strong> ${formattedAnswer}</p>`;
+      if (data.follow_up) {
+        box.innerHTML += `<p><strong>🤖 PolygraphGPT:</strong> ${data.follow_up}</p>`;
+      }
+    } else {
+      box.innerHTML += `<p><strong>🤖 PolygraphGPT:</strong> ❌ Error: ${data.error}</p>`;
     }
-  </script>
+
+    input.value = "";
+  });
+}
+
+let thinkingInterval;
+
+function showThinking() {
+  const box = document.getElementById("response");
+  const div = document.createElement("div");
+  div.id = "thinking";
+  div.className = "message thinking";
+  div.innerHTML = `<strong>🤖 PolygraphGPT:</strong> 🔍 Analyzing threat landscape<span id="dots">...</span>`;
+  box.appendChild(div);
+
+  let count = 0;
+  thinkingInterval = setInterval(() => {
+    const dots = document.getElementById("dots");
+    if (dots) {
+      count = (count + 1) % 4;
+      dots.textContent = ".".repeat(count);
+    }
+  }, 500);
+
+  return div;
+}
+
+function hideThinking(thinkingDiv) {
+  clearInterval(thinkingInterval);
+  if (thinkingDiv && thinkingDiv.parentNode) {
+    thinkingDiv.parentNode.removeChild(thinkingDiv);
+  }
+}
+
+function addMessage(sender, message) {
+  const box = document.getElementById("response");
+  const msgDiv = document.createElement("div");
+  msgDiv.className = "message";
+  msgDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
+  box.appendChild(msgDiv);
+  box.scrollTop = box.scrollHeight;
+}
+</script>
+
 </body>
 </html>
