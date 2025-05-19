@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PolygraphGPT Chatbot</title>
+</head>
+<body>
+  <h1>🧠 PolygraphGPT Chatbot</h1>
+  <p>Type an issue (e.g., "My laptop won't charge"):</p>
+
+  <input type="text" id="issueInput" placeholder="Describe your problem..." />
+  <button onclick="submitIssue()">Get Help</button>
+
+  <div id="response"></div>
+
+  <script>
+    function submitIssue() {
+      const input = document.getElementById("issueInput");
+      const issue = input.value;
+      input.value = "";
+
+      fetch("/chatbot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ issue })
+      })
+      .then(res => res.json())
+      .then(data => {
+        const box = document.getElementById("response");
+        if (data.success) {
+          box.innerHTML += `<p><strong>🤖:</strong> ${data.answer}</p>`;
+          if (data.follow_up) {
+            box.innerHTML += `<p><strong>🤖:</strong> ${data.follow_up}</p>`;
+          }
+        } else {
+          box.innerHTML += `<p><strong>🤖:</strong> ❌ Error: ${data.error}</p>`;
+        }
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,17 +1,16 @@
-from dotenv import load_dotenv
+from flask import Flask, request, jsonify, render_template
 import os
+import requests
+from dotenv import load_dotenv
 
 load_dotenv()  # Load variables from .env file into environment
+app = Flask(__name__)
 
 API_KEY = os.getenv('PERPLEXITY_API_KEY')
 
-
-
-from flask import Flask, request, jsonify, render_template
-
 from modules import deception, attribution, linguistic, deepfake
 
-app = Flask(__name__)
+
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -76,7 +75,7 @@ def get_threat_actors():
 @app.route('/')
 def home():
     return render_template('home.html')
-
+#---------------------------------------------------------------------------------------------
 @app.route('/deception-detection', methods=['GET', 'POST'])
 def deception_detection():
     if request.method == 'POST':
@@ -86,7 +85,7 @@ def deception_detection():
         result = deception.detect_deception(text)
         return jsonify({'result': result})
     return render_template('deception.html')
-
+#--------------------------------------------------------------------------------------------------------
 @app.route('/attribution', methods=['GET', 'POST'])
 def attribution_route():
     if request.method == 'POST':
@@ -104,7 +103,7 @@ def attribution_route():
 
     return render_template('attribution.html')
 
-
+#------------------------------------------------------------------------------
 from modules import linguistic  # make sure this import works
 
 @app.route('/linguistic-forensics', methods=['GET', 'POST'])
@@ -126,6 +125,7 @@ def linguistic_forensics():
     # GET request - render the form page
     return render_template('linguistic.html')
 
+#----------------------------------------------------------------------------------------------------------------------------
 @app.route('/deepfake-detection', methods=['GET', 'POST'])
 def deepfake_detection():
     if request.method == 'POST':
@@ -158,10 +158,7 @@ def upload_file():
 
     return jsonify({'message': 'File uploaded', 'filename': filename}), 201
 
-
-
-
-#--------------------------------------------------
+#---------------------------------------------------------------------------------------------------------
 # testing perlexity 
 
 import requests
@@ -202,7 +199,64 @@ def test_perplexity():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+#----------------------------------------------------------------------------------------------------
+# chat bot 
 
+
+@app.route('/chatbot')
+def chatbot_page():
+    return render_template('chatbot.html')
+
+
+@app.route('/chatbot', methods=['POST'])
+def chatbot():
+    user_issue = request.json.get('issue')
+
+    if not user_issue:
+        return jsonify({"error": "No issue provided"}), 400
+
+    api_key = os.getenv('PERPLEXITY_API_KEY')
+    if not api_key:
+        return jsonify({"error": "API key not found"}), 500
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    data = {
+        "model": "sonar-pro",
+        "messages": [
+            {"role": "system", "content": "You are a troubleshooting assistant."},
+            {"role": "user", "content": f"What are common fixes for: '{user_issue}'?"}
+        ]
+    }
+
+    url = "https://api.perplexity.ai/chat/completions"
+
+    try:
+        response = requests.post(url, headers=headers, json=data)
+
+        if response.status_code == 200:
+            result = response.json()
+            answer = result['choices'][0]['message']['content']
+            return jsonify({
+                "success": True,
+                "answer": answer,
+                "follow_up": "Did that fix it?"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": f"API Error ({response.status_code}): {response.text}"
+            }), response.status_code
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+        
 #---------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
