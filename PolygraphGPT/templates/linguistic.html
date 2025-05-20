@@ -2,125 +2,105 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <title>Phishing Email Analyzer v3.0</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Linguistic Forensics - Analyze Text</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f9fafb;
-      margin: 0;
-      padding: 40px 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      color: #333;
-    }
-
-    h1 {
-      margin-bottom: 30px;
-      font-weight: 700;
-      color: #2c3e50;
-      font-size: 2.4rem;
-      text-align: center;
-    }
-
-    form#linguisticForm {
-      width: 100%;
-      max-width: 600px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      background: white;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.1);
-    }
-
-    textarea#textInput {
-      min-height: 150px;
-      font-size: 1.1rem;
-      padding: 15px;
-      border-radius: 8px;
-      border: 1.5px solid #ccc;
-      font-family: monospace;
-      resize: vertical;
-      transition: border-color 0.2s ease;
-    }
-    textarea#textInput:focus {
-      outline: none;
-      border-color: #3498db;
-      box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
-    }
-
-    button[type="submit"] {
-      background-color: #3498db;
-      color: white;
-      font-weight: 600;
-      font-size: 1.1rem;
-      padding: 14px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    button[type="submit"]:hover {
-      background-color: #2980b9;
-    }
-
-    #result {
-      max-width: 600px;
-      margin-top: 30px;
-      background: #f0f4f8;
-      padding: 20px;
-      border-radius: 10px;
-      font-family: monospace;
-      white-space: pre-wrap;
-      color: #34495e;
-      box-shadow: inset 0 0 6px rgba(0,0,0,0.1);
-      min-height: 100px;
-    }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f9fafb; margin: 0; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; color: #333; }
+    h1 { margin-bottom: 30px; font-weight: 700; color: #2c3e50; font-size: 2.4rem; text-align: center; }
+    form#linguisticForm { width: 100%; max-width: 700px; display: flex; flex-direction: column; gap: 15px; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 3px 12px rgba(0,0,0,0.1);}
+    textarea#textInput { min-height: 150px; font-size: 1.1rem; padding: 15px; border-radius: 8px; border: 1.5px solid #ccc; font-family: monospace; resize: vertical; transition: border-color 0.2s ease;}
+    textarea#textInput:focus { outline: none; border-color: #3498db; box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);}
+    button[type="submit"] { background-color: #3498db; color: white; font-weight: 600; font-size: 1.1rem; padding: 14px; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease;}
+    button[type="submit"]:hover { background-color: #2980b9;}
+    #result { max-width: 700px; margin-top: 30px; background: #f0f4f8; padding: 28px 24px; border-radius: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #34495e; box-shadow: inset 0 0 6px rgba(0,0,0,0.08);}
+    .risk-bar { width: 100%; height: 32px; border-radius: 8px; margin-bottom: 18px; background: #e0e0e0; position: relative; overflow: hidden;}
+    .risk-bar-inner { height: 100%; border-radius: 8px; transition: width 0.6s; color: #fff; font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; letter-spacing: 1px;}
+    .risk-bar.red { background: #e74c3c; }
+    .risk-bar.orange { background: #f39c12; }
+    .risk-bar.yellow { background: #f1c40f; color: #333; }
+    .risk-bar.green { background: #2ecc40; }
+    .risk-label { font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; text-align: center;}
+    .section-title { font-weight: bold; margin-top: 20px; margin-bottom: 8px; font-size: 1.1rem; color: #222;}
+    .list, .links { margin: 0 0 8px 0; padding-left: 18px;}
+    .list li, .links li { margin-bottom: 7px; font-size: 1.05rem;}
+    .links a { color: #2980b9; text-decoration: underline; word-break: break-all;}
+    .links .suspicious { color: #e74c3c; font-weight: bold;}
+    .snapshot { background: #fff; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 5px rgba(0,0,0,0.06);}
+    .body-summary { background: #f9f9f9; border-radius: 6px; padding: 10px 12px; margin-bottom: 10px; font-size: 1.07rem;}
+    .risk-score { font-size: 1.3rem; font-weight: bold; }
+    .advice li { font-weight: 500; }
+    @media (max-width: 700px) { #result, form#linguisticForm { max-width: 100%; } }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-
-  <h1>Linguistic Forensics</h1>
-
+  <h1>Phishing Email Analyzer v3.0</h1>
   <form id="linguisticForm">
-    <textarea name="text" id="textInput" placeholder="Enter text here"></textarea>
+    <textarea name="text" id="textInput" placeholder="Paste suspected email text here..."></textarea>
     <button type="submit">Analyze</button>
   </form>
-
   <div id="result"></div>
-
   <script>
     document.getElementById('linguisticForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const text = document.getElementById('textInput').value.trim();
-
       if (!text) {
         document.getElementById('result').innerText = 'Please enter some text to analyze.';
         return;
       }
-
+      document.getElementById('result').innerHTML = '<b>Analyzing... (this may take a few seconds for advanced checks)</b>';
       const response = await fetch('/linguistic-forensics', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ text })
       });
-
       if (!response.ok) {
         const error = await response.json();
         document.getElementById('result').innerText = 'Error: ' + error.error;
         return;
       }
-
       const data = await response.json();
-      document.getElementById('result').innerText = JSON.stringify(data, null, 2);
+      let riskBarClass = data.risk_color || "gray";
+      let riskScore = data.phishing_likelihood_percent || data.risk_score || '?';
+      let riskLabel = data.risk_label || '';
+      let html = `
+        <div class="risk-label">
+          🧠 <span class="risk-score">Phishing Risk Score: ${riskScore}% – ${riskLabel}</span>
+        </div>
+        <div class="risk-bar ${riskBarClass}">
+          <div class="risk-bar-inner" style="width:${riskScore}%;">
+            ${riskScore}%
+          </div>
+        </div>
+        <div class="section-title">🔍 Why This Email Was Flagged:</div>
+        <ul class="list">
+          ${(data.why_flagged || []).map(e => `<li>${e}</li>`).join('')}
+        </ul>
+        <div class="section-title">🔒 What You Should Do:</div>
+        <ul class="advice">
+          ${(data.recommended_action || []).map(e => `<li>${e}</li>`).join('')}
+        </ul>
+        <div class="section-title">Summary:</div>
+        <div class="body-summary">${data.summary || ''}</div>
+        <div class="snapshot">
+          <div class="section-title">Email Snapshot:</div>
+          <div><b>Subject:</b> ${data.subject || ''}</div>
+          <div><b>From:</b> ${data.sender || ''}</div>
+          <div><b>To:</b> ${data.recipient || ''}</div>
+          <div><b>Date:</b> ${data.date || ''}</div>
+        </div>
+        ${(data.links && data.links.length) ? `<div class="section-title">Links found:</div>
+        <ul class="links">
+          ${data.links.map(link => {
+            const isSuspicious = (data.suspicious_links || []).includes(link);
+            return `<li><a href="${link}" target="_blank" class="${isSuspicious ? 'suspicious' : ''}">${link}</a> ${isSuspicious ? '⚠️' : ''}</li>`;
+          }).join('')}
+        </ul>` : ''}
+        <hr>
+        <small>Text stats: ${data.word_count || 0} words, ${data.unique_word_count || 0} unique, avg word length ${data.average_word_length || 0}, ${data.sentence_count || 0} sentences.</small>
+      `;
+      document.getElementById('result').innerHTML = html;
     });
   </script>
-
 </body>
 </html>

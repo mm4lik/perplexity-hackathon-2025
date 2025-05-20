@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 import os
 import re
+import threading
 import requests
 from dotenv import load_dotenv
 
@@ -105,59 +106,129 @@ def attribution_route():
     return render_template('attribution.html')
 
 #------------------------------------------------------------------------------
-from modules import linguistic  # make sure this import works
+#lingustic
+
+from modules import linguistic
+
+def call_perplexity_api(text, timeout=30):
+    api_key = os.getenv('PERPLEXITY_API_KEY')
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    prompt = f"""
+You are an expert cybersecurity analyst. Analyze the following email (headers and body) for phishing risk.
+
+- Provide a risk score from 0 to 100.
+- Provide a risk label: "Low Risk", "Moderate Risk", "Moderate-High Risk", or "Critical Risk".
+- Tailor your recommendations based on the risk level:
+  - For low risk: reassure the user and give cautious advice.
+  - For moderate risk: advise caution and verification.
+  - For high risk: advise quarantine, reporting, and no interaction.
+- If the input is very short or lacks context (e.g., just a name or a few words), explain that risk estimation is uncertain and advise caution accordingly.
+- Output a JSON with keys: risk_score, risk_label, why_flagged (list), recommended_action (list), summary (string).
+
+EMAIL:
+{text}
+"""
+
+    data = {
+        "model": "sonar-pro",
+        "messages": [
+            {"role": "system", "content": "You are an advanced cybersecurity email analyzer."},
+            {"role": "user", "content": prompt}
+        ]
+    }
+    url = "https://api.perplexity.ai/chat/completions"
+    try:
+        response = requests.post(url, headers=headers, json=data, timeout=timeout)
+        if response.status_code == 200:
+            import json as pyjson
+            llm_content = response.json()['choices'][0]['message']['content']
+            return pyjson.loads(llm_content)
+    except Exception:
+        pass
+    return None
 
 @app.route('/linguistic-forensics', methods=['GET', 'POST'])
 def linguistic_forensics():
     if request.method == 'POST':
-        # Use request.get_json() if frontend sends JSON, or request.form for form data
         if request.is_json:
             data = request.get_json()
             text = data.get('text') if data else None
         else:
             text = request.form.get('text')
-
         if not text:
             return jsonify({'error': 'No text provided'}), 400
-        
-        result = linguistic.analyze_text(text)
-        return jsonify(result)  # return JSON result directly (not nested)
 
-    # GET request - render the form page
+        local_result = linguistic.analyze_text(text)
+        llm_result = {}
+
+        # Run LLM in a thread for speed, with a timeout
+        def get_llm():
+            nonlocal llm_result
+            llm_result = call_perplexity_api(text, timeout=30)
+
+        thread = threading.Thread(target=get_llm)
+        thread.start()
+        thread.join(timeout=30)  # 30 seconds max wait for LLM
+
+        merged = local_result.copy()
+
+        # Handle very short/trivial input
+        if len(text.strip()) < 10:
+            merged['phishing_likelihood_percent'] = 20
+            merged['risk_color'] = "green"
+            merged['risk_label'] = "Low Risk"
+            merged['why_flagged'] = [
+                "Input is very short or incomplete, risk estimation is uncertain."
+            ]
+            merged['recommended_action'] = [
+                "This input is too short for accurate analysis. Please provide the full email.",
+                "Be cautious with unknown or incomplete messages."
+            ]
+            merged['summary'] = "The provided input is too short or lacks context for a reliable phishing analysis. Please submit the full email content for a more accurate assessment."
+            return jsonify(merged)
+
+        if llm_result:
+            merged.update(llm_result)
+            # Harmonize risk score/risk_label if present in LLM output
+            if 'risk_score' in llm_result:
+                merged['phishing_likelihood_percent'] = llm_result['risk_score']
+            # Risk color mapping
+            score = int(merged.get('phishing_likelihood_percent', 0))
+            if score >= 75:
+                merged['risk_color'] = "red"
+                merged['risk_label'] = "Critical Risk"
+            elif score >= 50:
+                merged['risk_color'] = "orange"
+                merged['risk_label'] = "Moderate-High Risk"
+            elif score >= 25:
+                merged['risk_color'] = "yellow"
+                merged['risk_label'] = "Moderate Risk"
+            else:
+                merged['risk_color'] = "green"
+                merged['risk_label'] = "Low Risk"
+        else:
+            # Always ensure a risk score is present (fallback)
+            if not merged.get('phishing_likelihood_percent'):
+                merged['phishing_likelihood_percent'] = local_result['phishing_likelihood_percent']
+            score = int(merged.get('phishing_likelihood_percent', 0))
+            if score >= 75:
+                merged['risk_color'] = "red"
+                merged['risk_label'] = "Critical Risk"
+            elif score >= 50:
+                merged['risk_color'] = "orange"
+                merged['risk_label'] = "Moderate-High Risk"
+            elif score >= 25:
+                merged['risk_color'] = "yellow"
+                merged['risk_label'] = "Moderate Risk"
+            else:
+                merged['risk_color'] = "green"
+                merged['risk_label'] = "Low Risk"
+
+        return jsonify(merged)
     return render_template('linguistic.html')
-
-#----------------------------------------------------------------------------------------------------------------------------
-@app.route('/deepfake-detection', methods=['GET', 'POST'])
-def deepfake_detection():
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            return jsonify({'error': 'No file uploaded'}), 400
-        file = request.files['file']
-        result = deepfake.detect_deepfake(file)
-        return jsonify({'result': result})
-    return render_template('deepfake.html')
-
-
-from werkzeug.utils import secure_filename
-
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file uploaded'}), 400
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-
-    filename = secure_filename(file.filename)
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save(filepath)
-
-    # Save file metadata to DB
-    uploaded_file = UploadedFile(filename=filename)
-    db.session.add(uploaded_file)
-    db.session.commit()
-
-    return jsonify({'message': 'File uploaded', 'filename': filename}), 201
 
 #---------------------------------------------------------------------------------------------------------
 # testing perlexity 
