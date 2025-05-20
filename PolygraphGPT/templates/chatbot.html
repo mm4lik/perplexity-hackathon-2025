@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>PolygraphGPT Cyber Troubleshooter</title>
+  <title>PolygraphGPT Chatbot</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f7f7f7;
+      font-family: Arial;
+      background-color: #f9f9f9;
       padding: 20px;
     }
     #chatbox {
@@ -18,14 +18,9 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     .message {
-      margin-bottom: 15px;
-    }
-    .user {
-      text-align: right;
-      color: blue;
+      margin-bottom: 10px;
     }
     .bot {
-      text-align: left;
       color: green;
     }
     input[type="text"] {
@@ -34,21 +29,47 @@
       font-size: 16px;
     }
     button {
-      padding: 10px 15px;
+      padding: 10px;
       font-size: 16px;
       cursor: pointer;
     }
-    .thinking {
-      color: gray;
-      font-style: italic;
+    h2, h3, h4 {
+      margin-top: 20px;
+    }
+    ul {
+      list-style-type: disc;
+      padding-left: 20px;
+    }
+    ol {
+      padding-left: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .citation {
+      font-size: 0.9em;
+      color: #555;
+      margin-top: 10px;
     }
   </style>
+  <!-- Add marked.js for Markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
 
 <div id="chatbox">
   <h1>🧠 PolygraphGPT – Cyber Troubleshooter</h1>
-  <p>Type an issue (e.g., "My laptop won't update", "I got a strange pop-up"):</p>
+  <p>Type an issue (...):</p>
 
   <input type="text" id="issueInput" placeholder="Describe your problem..." />
   <button onclick="submitIssue()">Get Help</button>
@@ -57,6 +78,8 @@
 </div>
 
 <script>
+let typingInterval;
+
 function submitIssue() {
   const input = document.getElementById("issueInput");
   const issue = input.value.trim();
@@ -64,7 +87,7 @@ function submitIssue() {
 
   addMessage("You", issue);
 
-  const thinkingId = showThinking();
+  const thinkingDiv = showThinking();
 
   fetch("/chatbot", {
     method: "POST",
@@ -73,53 +96,89 @@ function submitIssue() {
   })
   .then(res => res.json())
   .then(data => {
-    hideThinking(thinkingId);
-
-    const box = document.getElementById("response");
+    hideThinking(thinkingDiv);
 
     if (data.success) {
-      // Format line breaks
-      let formattedAnswer = data.answer.replace(/\n/g, "<br>");
+      // Pass citations to typeAnswer!
+      typeAnswer(data.answer, "🤖 PolygraphGPT", data.citations);
 
-      box.innerHTML += `<p><strong>🤖 PolygraphGPT:</strong> ${formattedAnswer}</p>`;
-      if (data.follow_up) {
-        box.innerHTML += `<p><strong>🤖 PolygraphGPT:</strong> ${data.follow_up}</p>`;
-      }
+      // Show follow-up after typing finishes
+      setTimeout(() => {
+        if (data.follow_up) {
+          addMessage("🤖 PolygraphGPT", data.follow_up);
+        }
+        // No need to call addCitations here anymore!
+      }, data.answer.length * 30 + 500);
+
     } else {
-      box.innerHTML += `<p><strong>🤖 PolygraphGPT:</strong> ❌ Error: ${data.error}</p>`;
+      addMessage("PolygraphGPT", "❌ Error: " + data.error);
     }
 
     input.value = "";
   });
 }
 
-let thinkingInterval;
-
 function showThinking() {
   const box = document.getElementById("response");
   const div = document.createElement("div");
-  div.id = "thinking";
-  div.className = "message thinking";
-  div.innerHTML = `<strong>🤖 PolygraphGPT:</strong> 🔍 Analyzing threat landscape<span id="dots">...</span>`;
+  div.className = "message typing";
+  div.innerHTML = `<strong>🤖 PolygraphGPT:</strong> Thinking...`;
   box.appendChild(div);
-
-  let count = 0;
-  thinkingInterval = setInterval(() => {
-    const dots = document.getElementById("dots");
-    if (dots) {
-      count = (count + 1) % 4;
-      dots.textContent = ".".repeat(count);
-    }
-  }, 500);
-
+  box.scrollTop = box.scrollHeight;
   return div;
 }
 
-function hideThinking(thinkingDiv) {
-  clearInterval(thinkingInterval);
-  if (thinkingDiv && thinkingDiv.parentNode) {
-    thinkingDiv.parentNode.removeChild(thinkingDiv);
+function hideThinking(el) {
+  if (el && el.parentNode) {
+    el.parentNode.removeChild(el);
   }
+}
+
+// --- FIXED: typeAnswer now renders Markdown as HTML and adds citations ---
+function typeAnswer(answer, sender = "🤖 PolygraphGPT", citations = []) {
+  const box = document.getElementById("response");
+
+  const msgDiv = document.createElement("div");
+  msgDiv.className = "message bot";
+  msgDiv.innerHTML = `<strong>${sender}:</strong> `;
+
+  // Render markdown to HTML using marked.js
+  const htmlContent = marked.parse(answer);
+
+  // Add the main answer
+  const contentDiv = document.createElement("div");
+  contentDiv.innerHTML = htmlContent;
+  msgDiv.appendChild(contentDiv);
+
+  // Add citations/links if any
+  if (citations && citations.length > 0) {
+    const citeDiv = document.createElement("div");
+    citeDiv.className = "citation";
+    citeDiv.innerHTML = "<strong>Sources:</strong><br>" +
+      citations.map(link => `<a href="${link}" target="_blank">${link}</a>`).join("<br>");
+    msgDiv.appendChild(citeDiv);
+  }
+
+  box.appendChild(msgDiv);
+  box.scrollTop = box.scrollHeight;
+}
+
+// You can remove the old typing animation if you want, or keep it for plain text only
+
+// addCitations is no longer used, but you can keep it for reference or delete it
+function addCitations(citations) {
+  if (!citations || citations.length === 0) return;
+
+  const box = document.getElementById("response");
+
+  const citeDiv = document.createElement("div");
+  citeDiv.className = "citation";
+
+  citeDiv.innerHTML = "<strong>Sources:</strong><br>" + 
+    citations.map(link => `<a href="${link}" target="_blank">${link}</a>`).join("<br>");
+
+  box.appendChild(citeDiv);
+  box.scrollTop = box.scrollHeight;
 }
 
 function addMessage(sender, message) {

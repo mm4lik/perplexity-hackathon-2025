@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 import os
+import re
 import requests
 from dotenv import load_dotenv
 
@@ -203,10 +204,13 @@ def test_perplexity():
 # chat bot 
 
 
+# Helper to extract all markdown links ([text](url)) as URLs
+def extract_markdown_links(markdown_text):
+    return re.findall(r'\[.*?\]\((https?://[^\s)]+)\)', markdown_text)
+
 @app.route('/chatbot')
 def chatbot_page():
     return render_template('chatbot.html')
-
 
 @app.route('/chatbot', methods=['POST'])
 def chatbot():
@@ -224,11 +228,51 @@ def chatbot():
         "Content-Type": "application/json"
     }
 
+    # Prompt instructs the model to give detailed, structured, sourced answers
     data = {
         "model": "sonar-pro",
         "messages": [
-            {"role": "system", "content": "You are a troubleshooting assistant."},
-            {"role": "user", "content": f"What are common fixes for: '{user_issue}'?"}
+            {
+                "role": "system",
+                "content": """
+You are a cybersecurity troubleshooter who helps users solve technical issues step-by-step.
+Provide detailed, structured responses with clear headings, bullet points, and a summary table.
+Use recent discussions from Reddit, Microsoft forums, and official Apple support pages.
+Include relevant links as markdown hyperlinks ([title](url)) when they’d help the user directly.
+At the end, include a '### Citations' section with a bullet list of all sources used (as markdown links).
+Talk like a person helping a friend fix their device.
+Format responses exactly as shown below:
+
+### Example Output Format
+
+#### Introduction
+Briefly describe the issue.
+
+### Key Vulnerabilities
+- Use bullet points for each vulnerability:
+  - **Vulnerability Name (CVE-ID)**
+    - Affected devices
+    - Description
+    - Impact
+
+### Summary Table
+| Vulnerability | Impact/Description | Patched in iOS |
+|---------------|---------------------|---------------|
+| CVE-1234      | Short description   | Version       |
+
+### Recommendations
+- Step-by-step instructions or advice.
+
+### Citations
+- Include sources like Reddit, Microsoft, or official Apple pages as markdown links.
+
+Now, provide this format for: '{user_issue}'?
+                """.replace("{user_issue}", user_issue)
+            },
+            {
+                "role": "user",
+                "content": f"What are common fixes for: '{user_issue}'?"
+            }
         ]
     }
 
@@ -240,10 +284,13 @@ def chatbot():
         if response.status_code == 200:
             result = response.json()
             answer = result['choices'][0]['message']['content']
+            citations = extract_markdown_links(answer)
+
             return jsonify({
                 "success": True,
                 "answer": answer,
-                "follow_up": "Did that help?"
+                "citations": citations,
+                "follow_up": "Did that help? If not, describe what's still happening."
             })
         else:
             return jsonify({
@@ -256,7 +303,8 @@ def chatbot():
             "success": False,
             "error": str(e)
         }), 500
-        
+
+
 #---------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
