@@ -1,1 +1,6 @@
 Flask==2.3.2
+requests
+python-dotenv
+flask_sqlalchemy
+transformers
+torch
