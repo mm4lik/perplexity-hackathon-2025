@@ -81,7 +81,6 @@ def home():
 #deception
 
 from modules import deception
-import threading
 
 
 @app.route('/deception-detection', methods=['GET', 'POST'])
@@ -89,43 +88,69 @@ def deception_detection():
     if request.method == 'POST':
         if request.is_json:
             data = request.get_json()
-            text = data.get('text', '').strip() if data else ''
+            text = data.get('text') if data else None
         else:
-            text = request.form.get('text', '').strip()
+            text = request.form.get('text')
         if not text:
             return jsonify({'error': 'No text provided'}), 400
 
-        result = {}
+        llm_result = {}
 
-        # Run Sonar API in a thread for speed, with a timeout
-        def get_deception():
-            nonlocal result
-            result = deception.analyze_text(text, timeout=30)
+        def get_llm():
+            nonlocal llm_result
+            llm_result = deception.call_perplexity_deception_api(text, timeout=30)
 
-        thread = threading.Thread(target=get_deception)
+        thread = threading.Thread(target=get_llm)
         thread.start()
         thread.join(timeout=30)  # 30 seconds max wait for LLM
 
-        if not result:
-            return jsonify({'error': 'Deception analysis failed.'}), 500
+        # Handle very short/trivial input
+        if len(text.strip()) < 10:
+            merged = {
+                'risk_score': 10,
+                'risk_color': "green",
+                'risk_label': "Low Risk",
+                'cues': ["Input is very short or incomplete, risk estimation is uncertain."],
+                'recommended_action': [
+                    "This input is too short for accurate analysis. Please provide more context.",
+                    "Be cautious with unknown or incomplete messages."
+                ],
+                'why_flagged': ["Too little content to analyze for deception."],
+                'summary': "The provided input is too short or lacks context for a reliable deception analysis. Please submit the full message for a more accurate assessment.",
+                'classification': "None",
+                'message_analyzed': text
+            }
+            return jsonify(merged)
 
-        # Add color/risk label for UI
-        score = int(result.get('risk_score', 0))
-        if score >= 75:
-            result['risk_color'] = "red"
-            result['risk_label'] = "Critical Risk"
-        elif score >= 50:
-            result['risk_color'] = "orange"
-            result['risk_label'] = "Moderate-High Risk"
-        elif score >= 25:
-            result['risk_color'] = "yellow"
-            result['risk_label'] = "Moderate Risk"
+        if llm_result:
+            # Risk color mapping
+            score = int(llm_result.get('risk_score', 0))
+            if score >= 75:
+                llm_result['risk_color'] = "red"
+            elif score >= 50:
+                llm_result['risk_color'] = "orange"
+            elif score >= 25:
+                llm_result['risk_color'] = "yellow"
+            else:
+                llm_result['risk_color'] = "green"
+            return jsonify(llm_result)
         else:
-            result['risk_color'] = "green"
-            result['risk_label'] = "Low Risk"
-
-        return jsonify(result)
+            # Fallback error
+            return jsonify({
+                'risk_score': 0,
+                'risk_color': "green",
+                'risk_label': "Low Risk",
+                'cues': [],
+                'recommended_action': [],
+                'why_flagged': ["Deception analysis failed. Please try again."],
+                'summary': "Deception analysis failed. Please try again.",
+                'classification': "None",
+                'message_analyzed': text
+            })
     return render_template('deception.html')
+
+
+
 
 #------------------------------------------------------------------------------
 #lingustic
