@@ -78,32 +78,54 @@ def get_threat_actors():
 def home():
     return render_template('home.html')
 #---------------------------------------------------------------------------------------------
+#deception
+
+from modules import deception
+import threading
+
+
 @app.route('/deception-detection', methods=['GET', 'POST'])
 def deception_detection():
     if request.method == 'POST':
-        text = request.form.get('text')
-        if not text:
-            return jsonify({'error': 'No text provided'}), 400
-        result = deception.detect_deception(text)
-        return jsonify({'result': result})
-    return render_template('deception.html')
-#--------------------------------------------------------------------------------------------------------
-@app.route('/attribution', methods=['GET', 'POST'])
-def attribution_route():
-    if request.method == 'POST':
-        try:
-            data = request.get_json(force=True)
-            text = data.get('text')
-        except Exception as e:
-            return jsonify({'error': f'Invalid JSON: {str(e)}'}), 400
-
+        if request.is_json:
+            data = request.get_json()
+            text = data.get('text', '').strip() if data else ''
+        else:
+            text = request.form.get('text', '').strip()
         if not text:
             return jsonify({'error': 'No text provided'}), 400
 
-        result = attribution.attribute_text(text)
+        result = {}
+
+        # Run Sonar API in a thread for speed, with a timeout
+        def get_deception():
+            nonlocal result
+            result = deception.analyze_text(text, timeout=30)
+
+        thread = threading.Thread(target=get_deception)
+        thread.start()
+        thread.join(timeout=30)  # 30 seconds max wait for LLM
+
+        if not result:
+            return jsonify({'error': 'Deception analysis failed.'}), 500
+
+        # Add color/risk label for UI
+        score = int(result.get('risk_score', 0))
+        if score >= 75:
+            result['risk_color'] = "red"
+            result['risk_label'] = "Critical Risk"
+        elif score >= 50:
+            result['risk_color'] = "orange"
+            result['risk_label'] = "Moderate-High Risk"
+        elif score >= 25:
+            result['risk_color'] = "yellow"
+            result['risk_label'] = "Moderate Risk"
+        else:
+            result['risk_color'] = "green"
+            result['risk_label'] = "Low Risk"
+
         return jsonify(result)
-
-    return render_template('attribution.html')
+    return render_template('deception.html')
 
 #------------------------------------------------------------------------------
 #lingustic

@@ -2,7 +2,6 @@ import os
 import requests
 import re
 from urllib.parse import urlparse
-from linguistic_analyzer import analyze_text  # your previously created module
 
 PPLX_API_URL = "https://api.perplexity.ai/chat/completions"
 API_KEY = os.getenv("PERPLEXITY_API_KEY")
