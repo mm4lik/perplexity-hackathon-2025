@@ -1,6 +1,5 @@
 import os
 import requests
-import json as pyjson
 
 def call_perplexity_deception_api(text, timeout=30):
     api_key = os.getenv('PERPLEXITY_API_KEY')
@@ -8,20 +7,23 @@ def call_perplexity_deception_api(text, timeout=30):
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
+    # Prompt for detailed, attribution-focused Markdown report
     prompt = f"""
-You are an expert deception detection analyst. Analyze the following message for signs of deception, manipulation, or fraud.
+You are an expert deception detection analyst and threat intelligence profiler. Given the following suspicious message, produce a detailed, attribution-focused Markdown report for a security analyst and a non-technical user.
 
-- Assign a risk score from 0 to 100.
-- Assign a risk label: "Low Risk", "Moderate Risk", "Moderate-High Risk", or "Critical Risk".
-- Classify the type of deception (e.g., Phishing, Advance-fee Fraud, Social Engineering, or None).
-- List the specific suspicious cues found (e.g., too-good-to-be-true claim, urgent call to action, request for sensitive info, manipulative trust phrase, false secrecy, suspicious reassurance), and quote the relevant text.
-- Provide a plain-language summary for a non-technical user.
-- Give clear recommendations for the recipient based on risk level.
-- Explain briefly why the message was flagged.
-- Output a JSON object with keys: risk_score, risk_label, classification, cues (list), recommended_action (list), why_flagged (list), summary, message_analyzed.
-- Respond ONLY with valid JSON and nothing else.
+Your report MUST include:
+- A clear classification (e.g., High-Risk Phishing Attempt).
+- A summary of the suspicious message (subject, sender, recipient, link, timestamp).
+- A table of social engineering tactics used, with explanations.
+- Technical analysis (e.g., domain age, hosting, simulated WHOIS, link analysis, sender IP, TLS cert).
+- Attribution: Based on language, infrastructure, and tactics, suggest a likely threat actor or campaign (simulate if needed).
+- Clear recommended actions for the recipient.
+- An analyst note explaining the multi-layered deception.
+- End with: "Would you like this exported as a JSON threat report, PDF brief, or live alert to your dashboard?"
 
-MESSAGE:
+Format your answer in Markdown with sections, tables, and bullet points as appropriate.
+
+MESSAGE TO ANALYZE:
 {text}
 """
 
@@ -37,11 +39,8 @@ MESSAGE:
         response = requests.post(url, headers=headers, json=data, timeout=timeout)
         if response.status_code == 200:
             llm_content = response.json()['choices'][0]['message']['content']
-            try:
-                return pyjson.loads(llm_content)
-            except Exception as e:
-                # Print the LLM output for debugging if not valid JSON
-                print("LLM returned non-JSON:", llm_content)
+            # The LLM returns Markdown text
+            return llm_content
         else:
             print("API call failed:", response.status_code, response.text)
     except Exception as e:

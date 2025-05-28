@@ -396,6 +396,50 @@ Now, provide this format for: '{user_issue}'?
             "success": False,
             "error": str(e)
         }), 500
+#---------------------------------------------------------------------------------------
+#attribution 
+
+from modules import attribution  # adjust import if needed
+
+
+@app.route('/attribution', methods=['GET', 'POST'])
+def attribution_route():
+    if request.method == 'POST':
+        if request.is_json:
+            data = request.get_json()
+            text = data.get('text') if data else None
+        else:
+            text = request.form.get('text')
+        if not text:
+            return jsonify({'error': 'No text provided'}), 400
+
+        markdown_report = ""
+
+        def get_llm():
+            nonlocal markdown_report
+            markdown_report = attribution.call_perplexity_attribution_api(text, timeout=30)
+
+        thread = threading.Thread(target=get_llm)
+        thread.start()
+        thread.join(timeout=30)
+
+        if len(text.strip()) < 10:
+            return jsonify({
+                'markdown_report': "Input too short for meaningful attribution analysis. Please provide a full suspicious message.",
+                'message_analyzed': text
+            })
+
+        if markdown_report:
+            return jsonify({
+                'markdown_report': markdown_report,
+                'message_analyzed': text
+            })
+        else:
+            return jsonify({
+                'markdown_report': "Attribution analysis failed. Please try again.",
+                'message_analyzed': text
+            })
+    return render_template('attribution.html')
 
 
 #---------------------------------------------------------------------------------------
