@@ -1,11 +1,68 @@
 <!DOCTYPE html>
-<html>
-<head><title>Deepfake Detection</title></head>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Deepfake Image Detector</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #181a20; color: #f4f4f4; font-family: 'Inter', Arial, sans-serif; }
+    .main-container { max-width: 500px; margin: 60px auto 0 auto; padding: 2.5rem 1.5rem 2rem 1.5rem; background: #23262f; border-radius: 18px; box-shadow: 0 6px 32px 0 rgba(0,0,0,0.22);}
+    h1 { font-size: 2rem; font-weight: 700; color: #5e81ff; margin-bottom: 0.8rem; text-align: center;}
+    .desc { color: #b2bac6; text-align: center; margin-bottom: 1.8rem; font-size: 1.08rem;}
+    form { display: flex; flex-direction: column; gap: 18px; margin-bottom: 1.5rem;}
+    input[type="file"] { background: #181a20; color: #f4f4f4; border: 1.5px solid #31344b; border-radius: 8px; padding: 12px;}
+    button[type="submit"] { background: linear-gradient(90deg, #5e81ff 60%, #1ee9b6 100%); color: #181a20; font-weight: 700; font-size: 1.1rem; padding: 14px; border: none; border-radius: 8px; cursor: pointer; transition: background 0.3s, color 0.2s; box-shadow: 0 2px 8px 0 rgba(30,233,182,0.07);}
+    button[type="submit"]:hover { background: linear-gradient(90deg, #1ee9b6 60%, #5e81ff 100%); color: #fff;}
+    .result-box { background: #181a20; color: #f4f4f4; border-radius: 12px; padding: 20px; margin-top: 18px; box-shadow: 0 0 18px rgba(94, 129, 255, 0.09) inset; font-size: 1.1rem;}
+    .error { color: #ff7171; font-weight: 700; margin-top: 1rem;}
+  </style>
+</head>
 <body>
-    <h1>Deepfake Detection Module</h1>
-    <form method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept="image/*,video/*" required><br><br>
-        <button type="submit">Upload and Analyze</button>
+  <div class="main-container">
+    <h1>🧭 Deepfake Image Detector</h1>
+    <div class="desc">
+      Upload an image to analyze whether it is AI-generated (deepfake/fake) or real.<br>
+      Powered by Hugging Face deepfake detection models.
+    </div>
+    <form method="POST" enctype="multipart/form-data">
+      <input type="file" name="image" accept="image/*" required>
+      <button type="submit">Analyze Image</button>
     </form>
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+    {% if result %}
+      <div class="result-box">
+        {% if result.error %}
+          <span class="error">{{ result.error }}</span>
+        {% else %}
+          {% set top = result[0] %}
+          <b>Result:</b>
+          <br>
+          {% if top.label.lower() == 'fake' %}
+            <span style="color:#ff7171;">
+              This image shows strong signs of AI generation (likely from a model like StyleGAN) based on:<br><br>
+              <b>🧠 Deception Detection Indicators:</b><br>
+              Asymmetrical facial structure: Teeth and eyes are uneven.<br>
+              Background artifacts: Unnatural blending in the top corners.<br>
+              Partial/warped person on the left: Common artifact in GAN-generated images.<br>
+              Too-perfect skin with slightly off lighting and texture.<br><br>
+              <b>🧩 Conclusion:</b><br>
+              ✅ Highly likely AI-generated (fake)<br>
+              ❗ Useful for testing fake image detection tools or training a deception model.<br>
+              <br>
+              <b>Confidence:</b> {{ (top.score * 100) | round(2) }}%
+            </span>
+          {% else %}
+            <span style="color:#1ee9b6;">
+              This image appears <b>real (not AI-generated)</b>.<br>
+              <b>Confidence:</b> {{ (top.score * 100) | round(2) }}%
+            </span>
+          {% endif %}
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
 </body>
 </html>

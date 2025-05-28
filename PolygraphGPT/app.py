@@ -1,3 +1,5 @@
+import os
+os.environ["CURL_CA_BUNDLE"] = ""
 from flask import Flask, request, jsonify, render_template
 import os
 import re
@@ -421,7 +423,7 @@ def attribution_route():
 
         thread = threading.Thread(target=get_llm)
         thread.start()
-        thread.join(timeout=30)
+        thread.join(timeout=60)
 
         if len(text.strip()) < 10:
             return jsonify({
@@ -443,7 +445,43 @@ def attribution_route():
 
 
 #---------------------------------------------------------------------------------------
+#deepfake
+from modules import deepfake
+import os
+os.environ["CURL_CA_BUNDLE"] = ""  # SSL workaround
 
+from flask import Flask, render_template, request
+from dotenv import load_dotenv
+from modules.deepfake import analyze_image_huggingface, test_huggingface_api
+
+load_dotenv()
+
+@app.route("/deepfake", methods=["GET", "POST"])
+def deepfake():
+    api_ok = test_huggingface_api()
+    if not api_ok:
+        return render_template("deepfake.html", error="Cannot reach Hugging Face API. SSL or network error.", result=None)
+    result = None
+    error = None
+    if request.method == "POST":
+        if "image" not in request.files:
+            error = "No file uploaded."
+        else:
+            image = request.files["image"]
+            if image.filename == "":
+                error = "No file selected."
+            else:
+                image_path = "temp_upload.jpg"
+                image.save(image_path)
+                try:
+                    result = analyze_image_huggingface(image_path)
+                finally:
+                    if os.path.exists(image_path):
+                        os.remove(image_path)
+    return render_template("deepfake.html", result=result, error=error)
+
+
+#----------------------------------------------------------------------------------------
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
