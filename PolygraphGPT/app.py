@@ -83,6 +83,7 @@ def home():
 from modules import deception
 
 
+
 @app.route('/deception-detection', methods=['GET', 'POST'])
 def deception_detection():
     if request.method == 'POST':
@@ -94,60 +95,34 @@ def deception_detection():
         if not text:
             return jsonify({'error': 'No text provided'}), 400
 
-        llm_result = {}
+        markdown_report = ""
 
         def get_llm():
-            nonlocal llm_result
-            llm_result = deception.call_perplexity_deception_api(text, timeout=30)
+            nonlocal markdown_report
+            markdown_report = deception.call_perplexity_deception_api(text, timeout=30)
 
         thread = threading.Thread(target=get_llm)
         thread.start()
-        thread.join(timeout=30)  # 30 seconds max wait for LLM
+        thread.join(timeout=30)  # 30 seconds max wait
 
-        # Handle very short/trivial input
         if len(text.strip()) < 10:
-            merged = {
-                'risk_score': 10,
-                'risk_color': "green",
-                'risk_label': "Low Risk",
-                'cues': ["Input is very short or incomplete, risk estimation is uncertain."],
-                'recommended_action': [
-                    "This input is too short for accurate analysis. Please provide more context.",
-                    "Be cautious with unknown or incomplete messages."
-                ],
-                'why_flagged': ["Too little content to analyze for deception."],
-                'summary': "The provided input is too short or lacks context for a reliable deception analysis. Please submit the full message for a more accurate assessment.",
-                'classification': "None",
-                'message_analyzed': text
-            }
-            return jsonify(merged)
-
-        if llm_result:
-            # Risk color mapping
-            score = int(llm_result.get('risk_score', 0))
-            if score >= 75:
-                llm_result['risk_color'] = "red"
-            elif score >= 50:
-                llm_result['risk_color'] = "orange"
-            elif score >= 25:
-                llm_result['risk_color'] = "yellow"
-            else:
-                llm_result['risk_color'] = "green"
-            return jsonify(llm_result)
-        else:
-            # Fallback error
             return jsonify({
-                'risk_score': 0,
-                'risk_color': "green",
-                'risk_label': "Low Risk",
-                'cues': [],
-                'recommended_action': [],
-                'why_flagged': ["Deception analysis failed. Please try again."],
-                'summary': "Deception analysis failed. Please try again.",
-                'classification': "None",
+                'markdown_report': "Input too short for meaningful deception analysis. Please provide a full suspicious message.",
+                'message_analyzed': text
+            })
+
+        if markdown_report:
+            return jsonify({
+                'markdown_report': markdown_report,
+                'message_analyzed': text
+            })
+        else:
+            return jsonify({
+                'markdown_report': "Deception analysis failed. Please try again.",
                 'message_analyzed': text
             })
     return render_template('deception.html')
+
 
 
 
@@ -218,7 +193,7 @@ def linguistic_forensics():
 
         thread = threading.Thread(target=get_llm)
         thread.start()
-        thread.join(timeout=30)  # 30 seconds max wait for LLM
+        thread.join(timeout=60)  # 30 seconds max wait for LLM
 
         merged = local_result.copy()
 

@@ -1,11 +1,88 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 class="mb-4">Welcome to PolygraphGPT</h1>
-<ul class="list-group">
-  <a href="/chatbot">💬 Try the Troubleshooting Chatbot</a>
-  <li class="list-group-item"><a href="/deception-detection">Deception Detection</a></li>
-  <li class="list-group-item"><a href="/attribution">Attribution</a></li>
-  <li class="list-group-item"><a href="/linguistic-forensics">Linguistic Forensics</a></li>
-  <li class="list-group-item"><a href="/deepfake-detection">Deepfake Detection</a></li>
-</ul>
+<style>
+  body {
+    background: #181a20;
+    color: #f4f4f4;
+    font-family: 'Inter', Arial, sans-serif;
+    min-height: 100vh;
+  }
+  .main-container {
+    max-width: 850px;
+    margin: 3rem auto;
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+  .feature-card {
+    background: #23262f;
+    border-radius: 16px;
+    box-shadow: 0 6px 32px 0 rgba(0,0,0,0.22);
+    padding: 2rem 2.2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.2rem;
+  }
+  .feature-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #5e81ff;
+    margin-bottom: 0.2rem;
+  }
+  .feature-desc {
+    color: #b2bac6;
+    font-size: 1.08rem;
+    line-height: 1.6;
+    margin-bottom: 0.6rem;
+  }
+  .cta-btn {
+    background: linear-gradient(90deg, #5e81ff 60%, #1ee9b6 100%);
+    color: #181a20;
+    font-weight: 700;
+    font-size: 1.13rem;
+    padding: 0.95rem 2.2rem;
+    border: none;
+    border-radius: 9px;
+    box-shadow: 0 2px 8px 0 rgba(30,233,182,0.14);
+    text-align: center;
+    transition: background 0.2s, color 0.2s;
+    text-decoration: none;
+    margin-top: 0.2rem;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+  }
+  .cta-btn:hover {
+    background: linear-gradient(90deg, #1ee9b6 60%, #5e81ff 100%);
+    color: #fff;
+  }
+</style>
+
+<div class="main-container">
+  <div class="feature-card">
+    <div class="feature-title">💬 Troubleshooting & Security Chatbot</div>
+    <div class="feature-desc">
+      Need help troubleshooting device or software issues? Want to check the latest vulnerabilities for your laptop or phone? 
+      Ask our AI-powered chatbot for instant, expert guidance on cybersecurity and tech support.
+    </div>
+    <a href="/chatbot" class="cta-btn">Launch Chatbot</a>
+  </div>
+  
+  <div class="feature-card">
+    <div class="feature-title">🔍 Deception Detection</div>
+    <div class="feature-desc">
+      Unsure if a message, email, or link is a scam? Use our advanced AI to analyze content for phishing, fraud, and manipulation, helping you stay safe online.
+    </div>
+    <a href="/deception-detection" class="cta-btn">Start Deception Detection</a>
+  </div>
+  
+  <div class="feature-card">
+    <div class="feature-title">📝 Linguistic Forensics</div>
+    <div class="feature-desc">
+      Curious about the intent or authenticity of a text? Dive deep with linguistic forensics to uncover hidden patterns, authorship clues, and subtle signals in language.
+    </div>
+    <a href="/linguistic-forensics" class="cta-btn">Try Linguistic Forensics</a>
+  </div>
+</div>
 {% endblock %}

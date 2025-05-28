@@ -3,91 +3,195 @@
 <head>
   <meta charset="UTF-8">
   <title>PolygraphGPT Chatbot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap for layout (optional, can remove if you want pure custom) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Marked.js for Markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
-    body {
-      font-family: Arial;
-      background-color: #f9f9f9;
-      padding: 20px;
+    html, body {
+      height: 100%;
+      background: #181a20 !important;
+      color: #f4f4f4;
+      font-family: 'Inter', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .app-header {
+      width: 100%;
+      background: linear-gradient(90deg, #1e1f29, #2a2c3b 80%);
+      padding: 1.2rem 0 1.1rem 0;
+      text-align: center;
+      box-shadow: 0 4px 18px rgba(94, 129, 255, 0.12);
+      border-bottom: 1.5px solid #23262f;
+      margin-bottom: 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1040;
+    }
+    .brand-glow {
+      font-family: 'Poppins', 'Inter', sans-serif;
+      font-weight: 900;
+      font-size: 2.1rem;
+      color: #5e81ff;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      text-shadow:
+        0 0 12px rgba(94, 129, 255, 0.22),
+        0 0 24px rgba(30, 233, 182, 0.09);
+      margin: 0;
+      display: inline-block;
+      vertical-align: middle;
+      user-select: none;
+    }
+    .chat-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 130px 0 40px 0; /* space for header */
+      min-height: 100vh;
     }
     #chatbox {
-      max-width: 800px;
-      margin: auto;
-      background: white;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background: #23262f;
+      border-radius: 16px;
+      padding: 2.2rem 1.5rem 1.5rem 1.5rem;
+      box-shadow: 0 6px 32px 0 rgba(0,0,0,0.22);
+      margin-bottom: 2rem;
     }
     .message {
-      margin-bottom: 10px;
+      margin-bottom: 12px;
+      line-height: 1.6;
+      word-break: break-word;
     }
     .bot {
-      color: green;
+      color: #5e81ff;
+    }
+    .user {
+      color: #1ee9b6;
     }
     input[type="text"] {
-      width: 70%;
-      padding: 10px;
-      font-size: 16px;
+      width: 65%;
+      padding: 12px;
+      font-size: 1.1rem;
+      border-radius: 7px;
+      border: none;
+      outline: none;
+      background: #181a20;
+      color: #f4f4f4;
+      margin-right: 0.5rem;
+      box-shadow: 0 2px 8px rgba(30,233,182,0.06);
+    }
+    input[type="text"]::placeholder {
+      color: #a3a9cc;
+      opacity: 1;
+    }
+    .chat-controls {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1.2rem;
+      flex-wrap: wrap;
     }
     button {
-      padding: 10px;
-      font-size: 16px;
+      padding: 12px 18px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 7px;
+      background: linear-gradient(90deg, #5e81ff 60%, #1ee9b6 100%);
+      color: #181a20;
       cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      box-shadow: 0 2px 8px 0 rgba(30,233,182,0.07);
     }
-    h2, h3, h4 {
-      margin-top: 20px;
+    button:hover {
+      background: linear-gradient(90deg, #1ee9b6 60%, #5e81ff 100%);
+      color: #fff;
     }
-    ul {
-      list-style-type: disc;
-      padding-left: 20px;
+    .stop-btn {
+      background: #ff5e81;
+      color: #fff;
+      margin-left: 0.5rem;
     }
-    ol {
-      padding-left: 20px;
+    .stop-btn:hover {
+      background: #c92a4d;
+      color: #fff;
     }
-    table {
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #5e81ff;
+      margin-bottom: 0.8rem;
+      text-align: center;
+    }
+    .desc {
+      color: #b2bac6;
+      text-align: center;
+      margin-bottom: 1.8rem;
+      font-size: 1.08rem;
+    }
+    .citation {
+      font-size: 0.95em;
+      color: #a3a9cc;
+      margin-top: 10px;
+    }
+    /* Markdown styles */
+    #response table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
+      background: #23262f;
+      color: #f4f4f4;
     }
-    th, td {
-      border: 1px solid #ddd;
+    #response th, #response td {
+      border: 1px solid #393b4f;
       padding: 8px;
       text-align: left;
     }
-    th {
-      background-color: #f2f2f2;
+    #response th {
+      background-color: #2a2c3b;
     }
-    .citation {
-      font-size: 0.9em;
-      color: #555;
-      margin-top: 10px;
+    #response ul {
+      list-style-type: disc;
+      padding-left: 22px;
+    }
+    #response ol {
+      padding-left: 22px;
     }
   </style>
-  <!-- Add marked.js for Markdown rendering -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-
-<div id="chatbox">
-  <h1>🧠 PolygraphGPT – Cyber Troubleshooter</h1>
-  <p>Type an issue (...):</p>
-
-  <input type="text" id="issueInput" placeholder="Describe your problem..." />
-  <button onclick="submitIssue()">Get Help</button>
-
-  <div id="response"></div>
-</div>
-
+  <div class="app-header">
+    <span class="brand-glow">PolygraphGPT</span>
+  </div>
+  <div class="chat-container">
+    <div id="chatbox">
+      <h1>🧠 PolygraphGPT – Cyber Troubleshooter</h1>
+      <div class="desc">
+        Get instant help with device issues, vulnerability checks, and scam detection.<br>
+        Type your question or describe your problem below.
+      </div>
+      <div class="chat-controls">
+        <input type="text" id="issueInput" placeholder="Describe your problem..." autocomplete="off" />
+        <button onclick="submitIssue()" id="submitBtn">Get Help</button>
+        <button class="stop-btn" onclick="stopGeneration()" id="stopBtn" style="display:none;">Stop</button>
+      </div>
+      <div id="response"></div>
+    </div>
+  </div>
 <script>
 let typingInterval;
+let isGenerating = false;
 
 function submitIssue() {
   const input = document.getElementById("issueInput");
   const issue = input.value.trim();
-  if (!issue) return;
+  if (!issue || isGenerating) return;
 
-  addMessage("You", issue);
+  addMessage("You", issue, "user");
 
   const thinkingDiv = showThinking();
+  isGenerating = true;
+  document.getElementById("stopBtn").style.display = "inline-block";
 
   fetch("/chatbot", {
     method: "POST",
@@ -99,29 +203,28 @@ function submitIssue() {
     hideThinking(thinkingDiv);
 
     if (data.success) {
-      // Pass citations to typeAnswer!
       typeAnswer(data.answer, "🤖 PolygraphGPT", data.citations);
 
-      // Show follow-up after typing finishes
       setTimeout(() => {
         if (data.follow_up) {
-          addMessage("🤖 PolygraphGPT", data.follow_up);
+          addMessage("🤖 PolygraphGPT", data.follow_up, "bot");
         }
-        // No need to call addCitations here anymore!
       }, data.answer.length * 30 + 500);
 
     } else {
-      addMessage("PolygraphGPT", "❌ Error: " + data.error);
+      addMessage("PolygraphGPT", "❌ Error: " + data.error, "bot");
     }
 
     input.value = "";
+    isGenerating = false;
+    document.getElementById("stopBtn").style.display = "none";
   });
 }
 
 function showThinking() {
   const box = document.getElementById("response");
   const div = document.createElement("div");
-  div.className = "message typing";
+  div.className = "message typing bot";
   div.innerHTML = `<strong>🤖 PolygraphGPT:</strong> Thinking...`;
   box.appendChild(div);
   box.scrollTop = box.scrollHeight;
@@ -134,8 +237,8 @@ function hideThinking(el) {
   }
 }
 
-// --- FIXED: typeAnswer now renders Markdown as HTML and adds citations ---
 function typeAnswer(answer, sender = "🤖 PolygraphGPT", citations = []) {
+  if (!isGenerating) return; // Don't show answer if stopped
   const box = document.getElementById("response");
 
   const msgDiv = document.createElement("div");
@@ -163,33 +266,22 @@ function typeAnswer(answer, sender = "🤖 PolygraphGPT", citations = []) {
   box.scrollTop = box.scrollHeight;
 }
 
-// You can remove the old typing animation if you want, or keep it for plain text only
-
-// addCitations is no longer used, but you can keep it for reference or delete it
-function addCitations(citations) {
-  if (!citations || citations.length === 0) return;
-
-  const box = document.getElementById("response");
-
-  const citeDiv = document.createElement("div");
-  citeDiv.className = "citation";
-
-  citeDiv.innerHTML = "<strong>Sources:</strong><br>" + 
-    citations.map(link => `<a href="${link}" target="_blank">${link}</a>`).join("<br>");
-
-  box.appendChild(citeDiv);
-  box.scrollTop = box.scrollHeight;
-}
-
-function addMessage(sender, message) {
+function addMessage(sender, message, type="bot") {
   const box = document.getElementById("response");
   const msgDiv = document.createElement("div");
-  msgDiv.className = "message";
+  msgDiv.className = "message " + (type === "user" ? "user" : "bot");
   msgDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
   box.appendChild(msgDiv);
   box.scrollTop = box.scrollHeight;
 }
-</script>
 
+function stopGeneration() {
+  // This is a UI-only stop; for a real backend, add cancellation logic
+  isGenerating = false;
+  document.getElementById("stopBtn").style.display = "none";
+  addMessage("PolygraphGPT", "⏹️ Generation stopped by user.", "bot");
+}
+
+</script>
 </body>
 </html>
